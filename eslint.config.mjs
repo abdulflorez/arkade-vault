@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Design reference only, not served by the app (see specs/01-mvp-visual-screens.md).
+    "references/**",
   ]),
 ]);
 
