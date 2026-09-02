@@ -27,3 +27,7 @@ No test runner is configured yet.
 ## Workflow
 
 README.md states the project intends to follow Spec Driven Design via `/spec` and `/spec-impl` commands from the `Klerith/fernando-skills` pack, installed with `npx skills@latest add Klerith/fernando-skills`. These skills are not currently installed in this environment (no `.claude/skills` present) — verify availability before assuming `/spec` or `/spec-impl` can be used.
+
+## skills
+
+- Use always /frontend-design skill for design user interfaces.
