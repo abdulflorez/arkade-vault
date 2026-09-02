@@ -1,8 +1,9 @@
 # 01 — MVP visual: pantallas de Arcade Vault
 
-- **Estado:** Approved
+- **Estado:** Implemented
 - **Depende de:** (ninguno — primer spec del proyecto)
 - **Fecha:** 2026-08-25
+- **Implementado:** 2026-09-01
 
 **Objetivo:** Construir la interfaz visual completa del MVP de Arcade Vault (biblioteca, detalle de juego, reproductor simulado, salón de la fama y autenticación) como rutas reales de Next.js App Router, reutilizando el tema neón ya existente en `app/globals.css`, sin implementar lógica de juego real.
 
@@ -106,19 +107,19 @@ Cada paso deja la app funcional y desplegable (`npm run dev` sirve algo coherent
 
 ## Criterios de aceptación
 
-- [ ] `npm run dev` sirve `/` con la biblioteca: hero, buscador funcional, chips de categoría filtran, grid de juegos.
-- [ ] Buscar un término sin resultados muestra el estado "NO HAY RESULTADOS".
-- [ ] Cada `GameCard` navega a `/games/[id]`.
-- [ ] `/games/id-inexistente` muestra la página not-found de Next.js.
-- [ ] `/games/[id]` muestra el leaderboard determinista (mismo id → mismas puntuaciones en cada visita).
-- [ ] "JUGAR AHORA" navega a `/games/[id]/play`.
-- [ ] En `/games/[id]/play` el puntaje sube solo con un temporizador; "PAUSA" detiene el incremento y lo revierte "REANUDAR"; "FIN" abre el modal de fin de partida.
-- [ ] Guardar la puntuación en el modal persiste en `localStorage` (`av_scores`) y muestra el toast "PUNTUACIÓN GUARDADA".
-- [ ] `/hall-of-fame` cambia de tabs por juego (podio + tabla se actualizan); la fila "tu mejor marca" solo aparece con sesión iniciada.
-- [ ] `/login` permite iniciar sesión, crear cuenta o entrar como invitado; en los tres casos guarda `av_user` en `localStorage` y redirige a `/`.
-- [ ] El `Nav` refleja la sesión activa (nombre de usuario o botón "Iniciar Sesión"), resalta la ruta activa, y el menú móvil funciona por debajo de 840px de ancho.
-- [ ] `npm run lint` y `npm run build` pasan sin errores.
-- [ ] Todas las pantallas están en español y usan únicamente clases ya definidas en `app/globals.css` (sin CSS nuevo salvo ajustes menores inevitables de integración).
+- [x] `npm run dev` sirve `/` con la biblioteca: hero, buscador funcional, chips de categoría filtran, grid de juegos.
+- [x] Buscar un término sin resultados muestra el estado "NO HAY RESULTADOS".
+- [x] Cada `GameCard` navega a `/games/[id]`.
+- [x] `/games/id-inexistente` muestra la página not-found de Next.js.
+- [x] `/games/[id]` muestra el leaderboard determinista (mismo id → mismas puntuaciones en cada visita).
+- [x] "JUGAR AHORA" navega a `/games/[id]/play`.
+- [x] En `/games/[id]/play` el puntaje sube solo con un temporizador; "PAUSA" detiene el incremento y lo revierte "REANUDAR"; "FIN" abre el modal de fin de partida.
+- [x] Guardar la puntuación en el modal persiste en `localStorage` (`av_scores`) y muestra el toast "PUNTUACIÓN GUARDADA".
+- [x] `/hall-of-fame` cambia de tabs por juego (podio + tabla se actualizan); la fila "tu mejor marca" solo aparece con sesión iniciada.
+- [x] `/login` permite iniciar sesión, crear cuenta o entrar como invitado; en los tres casos guarda `av_user` en `localStorage` y redirige a `/`.
+- [x] El `Nav` refleja la sesión activa (nombre de usuario o botón "Iniciar Sesión"), resalta la ruta activa, y el menú móvil funciona por debajo de 840px de ancho.
+- [x] `npm run lint` y `npm run build` pasan sin errores.
+- [x] Todas las pantallas están en español y usan únicamente clases ya definidas en `app/globals.css` (sin CSS nuevo salvo ajustes menores inevitables de integración).
 
 ## Decisiones tomadas y descartadas
 
