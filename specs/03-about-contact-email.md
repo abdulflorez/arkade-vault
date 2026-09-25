@@ -1,8 +1,9 @@
 # 03 — About: página Acerca de + formulario de contacto con envío de correo (Resend)
 
-- **Estado:** Approved
+- **Estado:** Implementado
 - **Depende de:** SPEC 02 (home-landing)
 - **Fecha:** 2026-09-16
+- **Implementado:** 2026-09-24
 
 **Objetivo:** Construir la pantalla About/Contacto (`about.jsx` en `references/templates/home-about/`) como la nueva ruta `/about`, con el enlace "Acerca de" en el `Nav`, y conectar su formulario de contacto a un envío real de correo electrónico usando Resend.
 
@@ -78,17 +79,17 @@ Cada paso deja la app funcional (`npm run dev` sirve algo coherente después de 
 
 ## Criterios de aceptación
 
-- [ ] `npm run dev` sirve `/about` con: hero (kicker, título, misión, 3 highlight cards), divider animado, y sección de contacto (intro + tips + formulario).
-- [ ] Las animaciones "reveal on scroll" de la sección de contacto funcionan igual que en el template.
-- [ ] Enviar el formulario con campos vacíos dispara el shake existente, sin llamar a la API.
-- [ ] Enviar el formulario completo con datos válidos: el botón muestra "ENVIANDO...", se deshabilita, y al recibir respuesta exitosa se reemplaza el formulario por el bloque `terminal-success` con el nombre del usuario.
-- [ ] El envío exitoso dispara un correo real vía Resend a `CONTACT_TO_EMAIL`, con `reply_to` igual al correo ingresado en el formulario.
-- [ ] Si el route handler responde con error (por ejemplo, quitando o invalidando `RESEND_API_KEY`), el formulario muestra el shake y un mensaje de error en rojo, sin perder los datos ingresados.
-- [ ] El route handler responde `400` si `name`, `email` o `message` vienen vacíos, o si `email` no tiene formato válido — sin llamar a Resend en ese caso.
-- [ ] El `Nav` muestra "Acerca de" en escritorio y en el panel móvil, entre "Salón de la Fama" y el botón de sesión; está activo solo en `/about`.
-- [ ] `.env.example` existe con `RESEND_API_KEY` y `CONTACT_TO_EMAIL` documentados (sin valores reales); `.env.local` no se commitea (ya cubierto por `.gitignore`).
-- [ ] `npm run lint` y `npm run build` pasan sin errores.
-- [ ] About está en español y usa únicamente clases porteadas desde el template, más la única clase nueva necesaria para el estado de error (no presente en el template).
+- [x] `npm run dev` sirve `/about` con: hero (kicker, título, misión, 3 highlight cards), divider animado, y sección de contacto (intro + tips + formulario).
+- [x] Las animaciones "reveal on scroll" de la sección de contacto funcionan igual que en el template.
+- [x] Enviar el formulario con campos vacíos dispara el shake existente, sin llamar a la API.
+- [x] Enviar el formulario completo con datos válidos: el botón muestra "ENVIANDO...", se deshabilita, y al recibir respuesta exitosa se reemplaza el formulario por el bloque `terminal-success` con el nombre del usuario.
+- [x] El envío exitoso dispara un correo real vía Resend a `CONTACT_TO_EMAIL`, con `reply_to` igual al correo ingresado en el formulario.
+- [x] Si el route handler responde con error (por ejemplo, quitando o invalidando `RESEND_API_KEY`), el formulario muestra el shake y un mensaje de error en rojo, sin perder los datos ingresados.
+- [x] El route handler responde `400` si `name`, `email` o `message` vienen vacíos, o si `email` no tiene formato válido — sin llamar a Resend en ese caso.
+- [x] El `Nav` muestra "Acerca de" en escritorio y en el panel móvil, entre "Salón de la Fama" y el botón de sesión; está activo solo en `/about`.
+- [x] `.env.example` existe con `RESEND_API_KEY` y `CONTACT_TO_EMAIL` documentados (sin valores reales); `.env.local` no se commitea (ya cubierto por `.gitignore`).
+- [x] `npm run lint` y `npm run build` pasan sin errores.
+- [x] About está en español y usa únicamente clases porteadas desde el template, más la única clase nueva necesaria para el estado de error (no presente en el template).
 
 ## Decisiones tomadas y descartadas
 
@@ -101,9 +102,11 @@ Cada paso deja la app funcional (`npm run dev` sirve algo coherente después de 
 - **Validación también en el servidor** (campos no vacíos + formato de email), no solo confiar en el shake del cliente — decisión explícita del usuario, evita llamadas innecesarias a Resend con datos inválidos.
 - **Sin persistencia de mensajes de contacto** (ni `localStorage` ni base de datos) — el mensaje solo vive en memoria durante el request y se envía por correo; consistente con el resto del proyecto (mock/sin backend real) salvo por este envío de correo real.
 - **Los mensajes de contacto son independientes del sistema de sesión** (`session-context.tsx`) — no se agregan a `av_scores` ni afectan `av_user`.
+- **(Detectado durante la implementación, corregido)** El `.gitignore` original (`.env*`) también ignoraba `.env.example`, impidiendo commitearlo. Se agregó la excepción `!.env.example` — decisión explícita del usuario tras señalarlo.
 
 ## Riesgos identificados
 
 - El remitente de pruebas `onboarding@resend.dev` de Resend puede tener límites de entrega o quedar marcado como spam en algunos proveedores de correo — aceptable para MVP; migrar a un dominio propio verificado queda para un spec futuro si se vuelve necesario.
 - Si `RESEND_API_KEY` no está configurada en `.env.local`, todo envío fallará y siempre se mostrará el estado de error — comportamiento esperado y documentado, no es un bug.
 - El bug preexistente del botón hamburguesa en mobile (documentado en spec 02, riesgo final) no se corrige aquí — el enlace "Acerca de" se agrega al panel existente sin tocar su layout.
+- **(Detectado durante la implementación)** El modo sandbox de Resend (`onboarding@resend.dev`) solo permite enviar a la dirección exacta verificada en la cuenta — un alias `+` de Gmail (ej. `nombre+algo@gmail.com`) es rechazado con `403 validation_error`, aunque Gmail lo trate como la misma bandeja. `CONTACT_TO_EMAIL` en `.env.local` debe ser la dirección exacta de la cuenta de Resend mientras no se verifique un dominio propio.
