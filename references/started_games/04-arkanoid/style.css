@@ -1,0 +1,26 @@
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #111;
+}
+
+#game {
+  background: #000;
+}
+
+.game-wrap {
+  position: relative;
+}
+
+#levelSelect {
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: 420px;
+  transform: translateX(-50%);
+  font-size: 16px;
+  padding: 4px 8px;
+}
