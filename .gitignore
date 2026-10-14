@@ -38,7 +38,10 @@ yarn-error.log*
 .vercel
 
 # Claude Code local skill mirror (canonical copy lives in .agents/, already tracked)
-.claude/
+.claude/*
+# ...except the project hooks, which are shared
+!.claude/settings.json
+!.claude/hooks/
 
 # typescript
 *.tsbuildinfo
