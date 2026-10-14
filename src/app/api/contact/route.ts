@@ -16,16 +16,13 @@ export async function POST(request: Request) {
   const message = body?.message?.trim() ?? "";
 
   if (!name || !email || !message) {
-    return Response.json(
-      { error: "Nombre, correo y mensaje son obligatorios." },
-      { status: 400 }
-    );
+    return Response.json({ error: "Nombre, correo y mensaje son obligatorios." }, { status: 400 });
   }
 
   if (!EMAIL_REGEX.test(email)) {
     return Response.json(
       { error: "El correo electrónico no tiene un formato válido." },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -35,7 +32,7 @@ export async function POST(request: Request) {
   if (!to) {
     return Response.json(
       { error: "El destinatario de contacto no está configurado." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -50,7 +47,7 @@ export async function POST(request: Request) {
   if (error) {
     return Response.json(
       { error: "No se pudo enviar el mensaje. Intenta de nuevo más tarde." },
-      { status: 502 }
+      { status: 502 },
     );
   }
 

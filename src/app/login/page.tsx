@@ -31,15 +31,24 @@ export default function LoginPage() {
           <h2 className="neon-cyan">ARCADE VAULT</h2>
           <div
             className="mono"
-            style={{ fontSize: 11, color: "var(--ink-faint)", letterSpacing: "0.16em", marginTop: 6 }}
+            style={{
+              fontSize: 11,
+              color: "var(--ink-faint)",
+              letterSpacing: "0.16em",
+              marginTop: 6,
+            }}
           >
             ACCESO AL SISTEMA · v2.6
           </div>
         </div>
 
         <div className="auth-tabs">
-          <button className={tab === "in" ? "on" : ""} onClick={() => setTab("in")}>INICIAR SESIÓN</button>
-          <button className={tab === "up" ? "on" : ""} onClick={() => setTab("up")}>CREAR CUENTA</button>
+          <button className={tab === "in" ? "on" : ""} onClick={() => setTab("in")}>
+            INICIAR SESIÓN
+          </button>
+          <button className={tab === "up" ? "on" : ""} onClick={() => setTab("up")}>
+            CREAR CUENTA
+          </button>
         </div>
 
         <form onSubmit={submit}>
@@ -60,7 +69,12 @@ export default function LoginPage() {
           )}
           <div className="field">
             <label>Contraseña</label>
-            <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="••••••••" />
+            <input
+              type="password"
+              value={pass}
+              onChange={(e) => setPass(e.target.value)}
+              placeholder="••••••••"
+            />
           </div>
 
           <button className="btn lg" type="submit" style={{ width: "100%", marginTop: 8 }}>
@@ -68,18 +82,32 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <button className="btn ghost" style={{ width: "100%", marginTop: 10 }} onClick={playAsGuest}>
+        <button
+          className="btn ghost"
+          style={{ width: "100%", marginTop: 10 }}
+          onClick={playAsGuest}
+        >
           JUGAR COMO INVITADO
         </button>
 
         <div className="auth-divider">O CONTINÚA CON</div>
         <div className="social">
-          <button className="btn ghost" type="button">◆ GOOGLE</button>
-          <button className="btn ghost" type="button">▣ GITHUB</button>
+          <button className="btn ghost" type="button">
+            ◆ GOOGLE
+          </button>
+          <button className="btn ghost" type="button">
+            ▣ GITHUB
+          </button>
         </div>
 
         <div
-          style={{ marginTop: 18, textAlign: "center", fontSize: 11, color: "var(--ink-faint)", letterSpacing: "0.1em" }}
+          style={{
+            marginTop: 18,
+            textAlign: "center",
+            fontSize: 11,
+            color: "var(--ink-faint)",
+            letterSpacing: "0.1em",
+          }}
         >
           AL ENTRAR ACEPTAS LOS TÉRMINOS DEL SALÓN ARCADE
         </div>

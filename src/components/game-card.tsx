@@ -44,7 +44,8 @@ export function GameCard({ game }: { game: Game }) {
           </div>
           <span
             className={
-              "btn " + (game.color === "magenta" ? "magenta" : game.color === "yellow" ? "yellow" : "")
+              "btn " +
+              (game.color === "magenta" ? "magenta" : game.color === "yellow" ? "yellow" : "")
             }
           >
             JUGAR

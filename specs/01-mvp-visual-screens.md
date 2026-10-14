@@ -37,6 +37,7 @@
 Todo el "modelo de datos" es mock y vive en cliente (sin persistencia real más allá de `localStorage`).
 
 **`lib/data.ts`**
+
 ```ts
 export interface Game {
   id: string;
@@ -62,9 +63,11 @@ export const CATS: string[];
 export const PLAYERS: string[];
 export function seededScores(seed: number, count?: number): ScoreRow[];
 ```
+
 Contenido idéntico (mismos 8 juegos, mismos textos en español, mismo algoritmo pseudo-aleatorio con seed) al de `references/templates/data.jsx`.
 
 **`lib/session-context.tsx`**
+
 ```ts
 export interface Session {
   name: string;
@@ -123,11 +126,11 @@ Cada paso deja la app funcional y desplegable (`npm run dev` sirve algo coherent
 
 ## Decisiones tomadas y descartadas
 
-- **Rutas reales de Next.js App Router** en vez de replicar el ruteo por hash de `app.jsx`. Es lo idiomático para este proyecto (App Router) y da URLs navegables/compartibles. *Descartado:* ruteo por hash con una sola ruta `/`.
+- **Rutas reales de Next.js App Router** en vez de replicar el ruteo por hash de `app.jsx`. Es lo idiomático para este proyecto (App Router) y da URLs navegables/compartibles. _Descartado:_ ruteo por hash con una sola ruta `/`.
 - **Segmentos de URL en inglés** (`/games/[id]`, `/games/[id]/play`, `/hall-of-fame`, `/login`) por decisión explícita del usuario, aunque el resto de la UI esté en español.
 - **El reproductor mantiene la simulación completa** (temporizador de puntaje, pausa, modal de fin de partida) por decisión explícita del usuario: se considera una "maqueta animada", no lógica de juego real, y por tanto cae dentro de "parte visual".
 - **Sesión y puntuaciones en `localStorage` sin backend**, replicando `app.jsx` 1:1 — no se introduce autenticación real.
-- **`app/`, `components/` y `lib/` movidos bajo `src/`** (`src/app`, `src/components`, `src/lib`), siguiendo el patrón común de Next.js para separar código de aplicación de los archivos de configuración que quedan en la raíz (`package.json`, `next.config.ts`, `tsconfig.json`, `public/`). El alias `@/*` en `tsconfig.json` se actualizó a `./src/*`. *Decisión revisada durante la implementación* (Paso 3) a pedido explícito del usuario; reemplaza la decisión original de "`components/` y `lib/` en la raíz del repo sin `src/`".
+- **`app/`, `components/` y `lib/` movidos bajo `src/`** (`src/app`, `src/components`, `src/lib`), siguiendo el patrón común de Next.js para separar código de aplicación de los archivos de configuración que quedan en la raíz (`package.json`, `next.config.ts`, `tsconfig.json`, `public/`). El alias `@/*` en `tsconfig.json` se actualizó a `./src/*`. _Decisión revisada durante la implementación_ (Paso 3) a pedido explícito del usuario; reemplaza la decisión original de "`components/` y `lib/` en la raíz del repo sin `src/`".
 - **Datos mock portados literalmente** desde `data.jsx` (mismos 8 juegos, mismos textos), sin agregar ni quitar contenido.
 - **`notFound()` de Next.js para ids de juego inexistentes**, en vez de retornar `null` como hace el template — decisión propia, más idiomática en App Router y evita una pantalla en blanco silenciosa.
 - **Botones sociales (Google/GitHub) decorativos**, sin `onClick` funcional — igual que en el template.
