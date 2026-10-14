@@ -14,7 +14,7 @@ function useReveal() {
           }
         });
       },
-      { threshold: 0.12 }
+      { threshold: 0.12 },
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
@@ -139,9 +139,9 @@ export default function About() {
         <div className="kicker pixel neon-yellow">▸ ACERCA DE</div>
         <h1 className="about-title">ACERCA DE ARCADE VAULT</h1>
         <p className="about-mission">
-          ARCADE VAULT nació del amor por los videojuegos clásicos. Nuestra misión es preservar y celebrar
-          los arcades que definieron una generación, haciéndolos accesibles para todos, en cualquier lugar
-          y sin costo.
+          ARCADE VAULT nació del amor por los videojuegos clásicos. Nuestra misión es preservar y
+          celebrar los arcades que definieron una generación, haciéndolos accesibles para todos, en
+          cualquier lugar y sin costo.
         </p>
 
         <div className="highlight-row">
@@ -217,7 +217,12 @@ export default function About() {
                     placeholder="Cuéntanos qué tienes en mente…"
                   ></textarea>
                 </div>
-                <button className="btn xl press" type="submit" disabled={sending} style={{ width: "100%" }}>
+                <button
+                  className="btn xl press"
+                  type="submit"
+                  disabled={sending}
+                  style={{ width: "100%" }}
+                >
                   {sending ? "ENVIANDO..." : "▶  ENVIAR MENSAJE"}
                 </button>
                 {error && <div className="form-error">{error}</div>}
