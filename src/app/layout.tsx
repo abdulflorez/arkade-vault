@@ -1,7 +1,28 @@
 import type { Metadata } from "next";
 import { Press_Start_2P, JetBrains_Mono, Courier_Prime } from "next/font/google";
 import { AppShell } from "@/components/app-shell";
+import type { Session } from "@/lib/session-context";
+import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
+
+/** Usuario de Supabase + su username de public.profiles, leídos en el servidor. */
+async function getSessionUser(): Promise<Session | null> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  // Respaldo por si el perfil aún no es visible: el username enviado en signUp.
+  const name = profile?.username ?? (user.user_metadata.username as string | undefined);
+  return name ? { name } : null;
+}
 
 const pixelFont = Press_Start_2P({
   variable: "--font-pixel",
@@ -25,7 +46,9 @@ export const metadata: Metadata = {
   description: "Juega online y compite por la mayor puntuación en Arcade Vault.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const user = await getSessionUser();
+
   return (
     <html
       lang="es"
@@ -35,7 +58,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <div className="av-bg" />
         <div className="av-noise" />
         <div id="root">
-          <AppShell>{children}</AppShell>
+          <AppShell user={user}>{children}</AppShell>
         </div>
       </body>
     </html>

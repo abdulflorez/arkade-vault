@@ -1,15 +1,11 @@
 "use client";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useSyncExternalStore,
-  type ReactNode,
-} from "react";
+import { createContext, startTransition, useCallback, useContext, type ReactNode } from "react";
+
+import { signOut as signOutAction } from "@/app/login/actions";
 
 export interface Session {
-  name: string;
+  name: string; // = profiles.username
 }
 
 export interface ScoreEntry {
@@ -21,70 +17,24 @@ export interface ScoreEntry {
 
 interface SessionContextValue {
   user: Session | null;
-  login: (u: Session | null) => void;
   signOut: () => void;
   saveScore: (entry: Omit<ScoreEntry, "at">) => void;
 }
 
-const USER_KEY = "av_user";
 const SCORES_KEY = "av_scores";
-
-const listeners = new Set<() => void>();
-
-function subscribe(callback: () => void) {
-  listeners.add(callback);
-  return () => listeners.delete(callback);
-}
-
-function notify() {
-  listeners.forEach((listener) => listener());
-}
-
-let cachedRaw: string | null = null;
-let cachedUser: Session | null = null;
-
-function readUserSnapshot(): Session | null {
-  let raw: string | null;
-  try {
-    raw = localStorage.getItem(USER_KEY);
-  } catch {
-    raw = null;
-  }
-  if (raw !== cachedRaw) {
-    cachedRaw = raw;
-    try {
-      cachedUser = raw ? JSON.parse(raw) : null;
-    } catch {
-      cachedUser = null;
-    }
-  }
-  return cachedUser;
-}
-
-function readUserServerSnapshot(): Session | null {
-  return null;
-}
 
 const SessionContext = createContext<SessionContextValue | null>(null);
 
-export function SessionProvider({ children }: { children: ReactNode }) {
-  const user = useSyncExternalStore(subscribe, readUserSnapshot, readUserServerSnapshot);
-
-  const login = useCallback((u: Session | null) => {
-    try {
-      if (u) localStorage.setItem(USER_KEY, JSON.stringify(u));
-      else localStorage.removeItem(USER_KEY);
-    } catch {}
-    notify();
-  }, []);
-
+/**
+ * El usuario llega ya resuelto desde el servidor (layout.tsx). Tras signIn,
+ * signUp o signOut, las Server Actions revalidan el layout y llega el nuevo.
+ */
+export function SessionProvider({ children, user }: { children: ReactNode; user: Session | null }) {
   const signOut = useCallback(() => {
-    try {
-      localStorage.removeItem(USER_KEY);
-    } catch {}
-    notify();
+    startTransition(() => signOutAction());
   }, []);
 
+  // Sin cambios hasta el spec 05: las puntuaciones siguen en localStorage.
   const saveScore = useCallback((entry: Omit<ScoreEntry, "at">) => {
     try {
       const raw = localStorage.getItem(SCORES_KEY);
@@ -95,7 +45,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <SessionContext.Provider value={{ user, login, signOut, saveScore }}>
+    <SessionContext.Provider value={{ user, signOut, saveScore }}>
       {children}
     </SessionContext.Provider>
   );

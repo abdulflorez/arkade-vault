@@ -47,7 +47,7 @@ export function Nav() {
           <span>CRÉDITOS · 03</span>
         </div>
         {user ? (
-          <button className="btn ghost auth-btn" onClick={signOut}>
+          <button className="btn ghost auth-btn" onClick={() => signOut()} title="Cerrar sesión">
             {user.name} ▾
           </button>
         ) : (

@@ -1,25 +1,43 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/session-context";
+
+import { signIn, signUp, type AuthState } from "./actions";
+
+const initialState: AuthState = { error: null, fields: {} };
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useSession();
   const [tab, setTab] = useState<"in" | "up">("in");
-  const [user, setUser] = useState("");
-  const [pass, setPass] = useState("");
+  // Controlados para conservar lo escrito al fallar o al cambiar de pestaña.
+  // La contraseña no: React resetea el campo tras cada envío.
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
 
-  const submit = (e: FormEvent) => {
-    e.preventDefault();
-    login({ name: (user || "PLAYER1").toUpperCase().slice(0, 10) });
-    router.push("/");
-  };
+  const [signInState, signInAction, signInPending] = useActionState(signIn, initialState);
+  const [signUpState, signUpAction, signUpPending] = useActionState(signUp, initialState);
+
+  const isSignIn = tab === "in";
+  const state = isSignIn ? signInState : signUpState;
+  const pending = isSignIn ? signInPending : signUpPending;
+
+  // Reinicia la animación .shake con cada error nuevo (aunque el texto se repita).
+  // Solo la primera vez que aparece cada error: cambiar de pestaña no sacude.
+  const formRef = useRef<HTMLFormElement>(null);
+  const shaken = useRef(new WeakSet<AuthState>());
+  useEffect(() => {
+    const form = formRef.current;
+    if (!form || !state.error || shaken.current.has(state)) return;
+    shaken.current.add(state);
+    form.classList.remove("shake");
+    void form.offsetWidth; // fuerza reflow para que la animación vuelva a correr
+    form.classList.add("shake");
+    const t = setTimeout(() => form.classList.remove("shake"), 400);
+    return () => clearTimeout(t);
+  }, [state]);
 
   const playAsGuest = () => {
-    login(null);
     router.push("/");
   };
 
@@ -43,42 +61,64 @@ export default function LoginPage() {
         </div>
 
         <div className="auth-tabs">
-          <button className={tab === "in" ? "on" : ""} onClick={() => setTab("in")}>
+          <button className={isSignIn ? "on" : ""} onClick={() => setTab("in")}>
             INICIAR SESIÓN
           </button>
-          <button className={tab === "up" ? "on" : ""} onClick={() => setTab("up")}>
+          <button className={!isSignIn ? "on" : ""} onClick={() => setTab("up")}>
             CREAR CUENTA
           </button>
         </div>
 
-        <form onSubmit={submit}>
-          <div className="field">
-            <label>Usuario</label>
-            <input value={user} onChange={(e) => setUser(e.target.value)} placeholder="px_kai" />
-          </div>
-          {tab === "up" && (
-            <div className="field slide-in">
-              <label>Correo electrónico</label>
+        <form ref={formRef} action={isSignIn ? signInAction : signUpAction}>
+          {!isSignIn && (
+            <div className="field">
+              <label htmlFor="username">Usuario</label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="jugador@vault.gg"
+                id="username"
+                name="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="px_kai"
+                autoComplete="username"
               />
             </div>
           )}
-          <div className="field">
-            <label>Contraseña</label>
+          <div className={"field" + (isSignIn ? "" : " slide-in")}>
+            <label htmlFor="email">Correo electrónico</label>
             <input
+              id="email"
+              name="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="jugador@vault.gg"
+              autoComplete="email"
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="password">Contraseña</label>
+            <input
+              id="password"
+              name="password"
               type="password"
-              value={pass}
-              onChange={(e) => setPass(e.target.value)}
               placeholder="••••••••"
+              autoComplete={isSignIn ? "current-password" : "new-password"}
             />
           </div>
 
-          <button className="btn lg" type="submit" style={{ width: "100%", marginTop: 8 }}>
-            {tab === "in" ? "ENTRAR AL VAULT" : "CREAR Y JUGAR"}
+          {state.error && (
+            <div className="form-error" role="alert">
+              {state.error}
+            </div>
+          )}
+
+          <button
+            className="btn lg"
+            type="submit"
+            disabled={pending}
+            style={{ width: "100%", marginTop: 8 }}
+          >
+            {pending ? "CONECTANDO..." : isSignIn ? "ENTRAR AL VAULT" : "CREAR Y JUGAR"}
           </button>
         </form>
 

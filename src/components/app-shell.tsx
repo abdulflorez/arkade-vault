@@ -1,12 +1,12 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { SessionProvider } from "@/lib/session-context";
+import { SessionProvider, type Session } from "@/lib/session-context";
 import { Nav } from "@/components/nav";
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({ children, user }: { children: ReactNode; user: Session | null }) {
   return (
-    <SessionProvider>
+    <SessionProvider user={user}>
       <Nav />
       <main className="av-main">{children}</main>
       <footer
