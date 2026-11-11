@@ -2595,7 +2595,8 @@ a {
   border: 1px dashed rgba(0, 245, 255, 0.15);
   pointer-events: none;
 }
-.contact-form.shake {
+.contact-form.shake,
+.auth-card form.shake {
   animation: shake 0.4s;
 }
 @keyframes shake {
