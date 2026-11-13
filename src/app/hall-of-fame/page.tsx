@@ -1,17 +1,55 @@
-"use client";
-
-import { useMemo, useState } from "react";
 import Link from "next/link";
-import { GAMES, seededScores } from "@/lib/data";
-import { useSession } from "@/lib/session-context";
+import { GAMES } from "@/lib/data";
+import { getLeaderboard, getUserBest, type LeaderboardRow } from "@/lib/scores";
+import { createClient } from "@/lib/supabase/server";
 
-export default function HallOfFamePage() {
-  const [tab, setTab] = useState(GAMES[0].id);
-  const { user } = useSession();
-  const rows = useMemo(() => seededScores(tab.length * 23 + 7, 12), [tab]);
-  const game = GAMES.find((g) => g.id === tab)!;
-  const youRank = user ? Math.floor(8 + (tab.length % 4)) : null;
-  const youScore = user ? rows[5]?.score - 2400 : null;
+const TOP = 12;
+
+function PodiumSlot({
+  row,
+  place,
+  className,
+}: {
+  row: LeaderboardRow | undefined;
+  place: 1 | 2 | 3;
+  className: string;
+}) {
+  const gold = place === 1;
+  return (
+    <div className={"podium-slot " + className}>
+      {gold && (
+        <div
+          className="pixel"
+          style={{ fontSize: 9, color: "var(--gold)", letterSpacing: "0.18em" }}
+        >
+          CAMPEÓN
+        </div>
+      )}
+      <div className="rank-num" style={gold ? { fontSize: 36, marginTop: 4 } : undefined}>
+        {String(place).padStart(2, "0")}
+      </div>
+      <div className="name">{row ? row.username : "---"}</div>
+      <div className="score" style={gold ? { fontSize: 20 } : undefined}>
+        {row ? row.score.toLocaleString("es-ES") : "---"}
+      </div>
+      <div className="date">{row?.date ?? ""}</div>
+    </div>
+  );
+}
+
+export default async function HallOfFamePage({ searchParams }: PageProps<"/hall-of-fame">) {
+  const { game: gameParam } = await searchParams;
+  const game = GAMES.find((g) => g.id === gameParam) ?? GAMES[0];
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const [rows, you] = await Promise.all([
+    getLeaderboard(game.id, TOP),
+    user ? getUserBest(game.id, user.id) : Promise.resolve(null),
+  ]);
 
   return (
     <div className="av-hall fade-in">
@@ -24,45 +62,21 @@ export default function HallOfFamePage() {
 
       <div className="hall-tabs">
         {GAMES.map((g) => (
-          <button
+          <Link
             key={g.id}
-            className={"chip" + (tab === g.id ? " active" : "")}
-            onClick={() => setTab(g.id)}
+            href={`/hall-of-fame?game=${g.id}`}
+            className={"chip" + (game.id === g.id ? " active" : "")}
+            scroll={false}
           >
             {g.title}
-          </button>
+          </Link>
         ))}
       </div>
 
       <div className="podium">
-        <div className="podium-slot silver">
-          <div className="rank-num">02</div>
-          <div className="name">{rows[1].name}</div>
-          <div className="score">{rows[1].score.toLocaleString("es-ES")}</div>
-          <div className="date">{rows[1].date}</div>
-        </div>
-        <div className="podium-slot gold">
-          <div
-            className="pixel"
-            style={{ fontSize: 9, color: "var(--gold)", letterSpacing: "0.18em" }}
-          >
-            CAMPEÓN
-          </div>
-          <div className="rank-num" style={{ fontSize: 36, marginTop: 4 }}>
-            01
-          </div>
-          <div className="name">{rows[0].name}</div>
-          <div className="score" style={{ fontSize: 20 }}>
-            {rows[0].score.toLocaleString("es-ES")}
-          </div>
-          <div className="date">{rows[0].date}</div>
-        </div>
-        <div className="podium-slot bronze">
-          <div className="rank-num">03</div>
-          <div className="name">{rows[2].name}</div>
-          <div className="score">{rows[2].score.toLocaleString("es-ES")}</div>
-          <div className="date">{rows[2].date}</div>
-        </div>
+        <PodiumSlot row={rows[1]} place={2} className="silver" />
+        <PodiumSlot row={rows[0]} place={1} className="gold" />
+        <PodiumSlot row={rows[2]} place={3} className="bronze" />
       </div>
 
       <div className="hall-table">
@@ -72,14 +86,15 @@ export default function HallOfFamePage() {
           <div>PUNTUACIÓN</div>
           <div>FECHA</div>
         </div>
+        {rows.length === 0 && <div className="lb-empty">SIN MARCAS AÚN · SÉ EL PRIMERO</div>}
         {rows.map((r, i) => (
           <div
-            key={r.name + i}
+            key={r.userId}
             className={"tr" + (i === 0 ? " top1" : i === 1 ? " top2" : i === 2 ? " top3" : "")}
             style={{ animationDelay: `${i * 50}ms` }}
           >
             <div className="rk">#{String(r.rank).padStart(2, "0")}</div>
-            <div className="pl">{r.name}</div>
+            <div className="pl">{r.username}</div>
             <div className="sc">{r.score.toLocaleString("es-ES")}</div>
             <div className="dt">{r.date}</div>
           </div>
@@ -87,21 +102,27 @@ export default function HallOfFamePage() {
         {user && (
           <>
             <div className="tr you-label">▸ TU MEJOR MARCA EN {game.title}</div>
-            <div className="tr you" style={{ animationDelay: `${rows.length * 50 + 50}ms` }}>
-              <div className="rk" style={{ color: "var(--yellow)" }}>
-                #{String(youRank).padStart(2, "0")}
+            {you ? (
+              <div className="tr you" style={{ animationDelay: `${rows.length * 50 + 50}ms` }}>
+                <div className="rk" style={{ color: "var(--yellow)" }}>
+                  #{String(you.rank).padStart(2, "0")}
+                </div>
+                <div className="pl" style={{ color: "var(--yellow)" }}>
+                  {you.username}
+                </div>
+                <div
+                  className="sc"
+                  style={{ color: "var(--yellow)", textShadow: "0 0 6px rgba(245,255,0,0.5)" }}
+                >
+                  {you.score.toLocaleString("es-ES")}
+                </div>
+                <div className="dt">{you.date}</div>
               </div>
-              <div className="pl" style={{ color: "var(--yellow)" }}>
-                {user.name}
-              </div>
-              <div
-                className="sc"
-                style={{ color: "var(--yellow)", textShadow: "0 0 6px rgba(245,255,0,0.5)" }}
-              >
-                {(youScore || 9999).toLocaleString("es-ES")}
-              </div>
-              <div className="dt">11/05/2026</div>
-            </div>
+            ) : (
+              <Link href={`/games/${game.id}`} className="lb-empty" style={{ display: "block" }}>
+                AÚN SIN MARCA · JUEGA AHORA
+              </Link>
+            )}
           </>
         )}
       </div>

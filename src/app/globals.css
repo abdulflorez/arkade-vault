@@ -905,6 +905,16 @@ a {
   font-family: var(--mono);
   font-size: 13px;
 }
+/* Spec 05: leaderboard sin marcas todavía. */
+.lb-empty {
+  padding: 28px 16px;
+  text-align: center;
+  font-family: var(--pixel);
+  font-size: 10px;
+  line-height: 1.8;
+  letter-spacing: 0.14em;
+  color: var(--ink-faint);
+}
 .lb-row .rk {
   font-family: var(--pixel);
   font-size: 11px;
@@ -1198,6 +1208,18 @@ a {
 .modal .input-row input:focus {
   border-color: var(--cyan);
   box-shadow: 0 0 10px rgba(0, 245, 255, 0.35);
+}
+/* Spec 05: el nombre ya no se escribe; se muestra el username o el aviso de invitado. */
+.modal .input-row .save-label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--ink-dim);
+  text-align: left;
 }
 .modal .actions {
   display: flex;
@@ -2596,7 +2618,8 @@ a {
   pointer-events: none;
 }
 .contact-form.shake,
-.auth-card form.shake {
+.auth-card form.shake,
+.modal .input-row.shake {
   animation: shake 0.4s;
 }
 @keyframes shake {
