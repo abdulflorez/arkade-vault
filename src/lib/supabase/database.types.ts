@@ -26,9 +26,67 @@ export type Database = {
         };
         Relationships: [];
       };
+      scores: {
+        Row: {
+          created_at: string;
+          game_id: string;
+          id: number;
+          score: number;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          game_id: string;
+          id?: never;
+          score: number;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          game_id?: string;
+          id?: never;
+          score?: number;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "scores_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
-      [_ in never]: never;
+      game_leaderboard: {
+        Row: {
+          created_at: string | null;
+          game_id: string | null;
+          rank: number | null;
+          score: number | null;
+          user_id: string | null;
+          username: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "scores_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      game_stats: {
+        Row: {
+          best: number | null;
+          game_id: string | null;
+          plays: number | null;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
       [_ in never]: never;

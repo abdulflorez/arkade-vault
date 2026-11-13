@@ -12,10 +12,27 @@ export function GamePlayer({ game }: { game: Game }) {
   const [score, setScore] = useState(0);
   const [paused, setPaused] = useState(false);
   const [over, setOver] = useState(false);
-  const [name, setName] = useState(user ? user.name : "INVITADO");
+  const name = user ? user.name : "INVITADO";
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [shake, setShake] = useState(false);
 
   const level = Math.floor(score / 2500) + 1;
+
+  const onSave = async () => {
+    setSaving(true);
+    setSaveError(null);
+    const result = await saveScore({ game: game.id, score });
+    setSaving(false);
+    if (result.ok) {
+      setSaved(true);
+      return;
+    }
+    setSaveError(result.error);
+    setShake(true);
+    setTimeout(() => setShake(false), 400);
+  };
 
   useEffect(() => {
     if (over || paused) return;
@@ -29,6 +46,8 @@ export function GamePlayer({ game }: { game: Game }) {
     setPaused(false);
     setOver(false);
     setSaved(false);
+    setSaving(false);
+    setSaveError(null);
   };
 
   return (
@@ -110,25 +129,25 @@ export function GamePlayer({ game }: { game: Game }) {
             <h2>FIN DEL JUEGO</h2>
             <div className="final-label">PUNTUACIÓN FINAL</div>
             <div className="final">{score.toLocaleString("es-ES")}</div>
-            {!saved ? (
-              <div className="input-row">
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value.toUpperCase().slice(0, 10))}
-                  placeholder="TUS INICIALES"
-                />
-                <button
-                  className="btn yellow"
-                  onClick={() => {
-                    saveScore({ game: game.id, score, name });
-                    setSaved(true);
-                  }}
-                >
-                  GUARDAR PUNTUACIÓN
-                </button>
+            {!user ? (
+              <div className="input-row save-guest">
+                <span className="save-label">INICIA SESIÓN PARA GUARDAR TU MARCA</span>
+                <Link href="/login" className="btn yellow">
+                  INICIAR SESIÓN
+                </Link>
               </div>
-            ) : (
+            ) : saved ? (
               <div className="toast-saved">▸ PUNTUACIÓN GUARDADA_</div>
+            ) : (
+              <>
+                <div className={"input-row" + (shake ? " shake" : "")}>
+                  <span className="save-label">JUGADOR: {user.name}</span>
+                  <button className="btn yellow" onClick={onSave} disabled={saving}>
+                    {saving ? "GUARDANDO..." : "GUARDAR PUNTUACIÓN"}
+                  </button>
+                </div>
+                {saveError && <div className="form-error">{saveError}</div>}
+              </>
             )}
             <div className="actions">
               <button className="btn" onClick={restart}>

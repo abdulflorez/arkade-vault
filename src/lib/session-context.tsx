@@ -2,26 +2,23 @@
 
 import { createContext, startTransition, useCallback, useContext, type ReactNode } from "react";
 
+import { saveScore as saveScoreAction, type SaveScoreResult } from "@/app/games/actions";
 import { signOut as signOutAction } from "@/app/login/actions";
 
 export interface Session {
   name: string; // = profiles.username
 }
 
-export interface ScoreEntry {
+export interface ScoreInput {
   game: string;
   score: number;
-  name: string;
-  at: number;
 }
 
 interface SessionContextValue {
   user: Session | null;
   signOut: () => void;
-  saveScore: (entry: Omit<ScoreEntry, "at">) => void;
+  saveScore: (entry: ScoreInput) => Promise<SaveScoreResult>;
 }
-
-const SCORES_KEY = "av_scores";
 
 const SessionContext = createContext<SessionContextValue | null>(null);
 
@@ -34,14 +31,14 @@ export function SessionProvider({ children, user }: { children: ReactNode; user:
     startTransition(() => signOutAction());
   }, []);
 
-  // Sin cambios hasta el spec 05: las puntuaciones siguen en localStorage.
-  const saveScore = useCallback((entry: Omit<ScoreEntry, "at">) => {
+  // Spec 05: las puntuaciones se guardan en Supabase vía Server Action.
+  const saveScore = useCallback(async ({ game, score }: ScoreInput): Promise<SaveScoreResult> => {
     try {
-      const raw = localStorage.getItem(SCORES_KEY);
-      const all: ScoreEntry[] = raw ? JSON.parse(raw) : [];
-      all.push({ ...entry, at: Date.now() });
-      localStorage.setItem(SCORES_KEY, JSON.stringify(all));
-    } catch {}
+      return await saveScoreAction({ gameId: game, score });
+    } catch {
+      // Error de red o de la acción: se trata igual que un fallo de guardado.
+      return { ok: false, error: "No se pudo guardar. Intenta de nuevo." };
+    }
   }, []);
 
   return (
