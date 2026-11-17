@@ -744,10 +744,10 @@ a {
   filter: drop-shadow(0 0 6px rgba(0, 255, 136, 0.6));
 }
 
-.cover-rocas {
+.cover-asterox {
   background: radial-gradient(circle at 50% 50%, #0a0a30, #000);
 }
-.cover-rocas::after {
+.cover-asterox::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -759,7 +759,7 @@ a {
     radial-gradient(circle at 12% 70%, var(--cyan) 0 2px, transparent 3px),
     radial-gradient(circle at 60% 20%, var(--cyan) 0 2px, transparent 3px);
 }
-.cover-rocas::before {
+.cover-asterox::before {
   content: "▲";
   position: absolute;
   left: 48%;
@@ -828,6 +828,21 @@ a {
   font-family: var(--pixel);
   font-size: clamp(20px, 3vw, 32px);
   letter-spacing: 0.06em;
+}
+/* Spec 06: icono del juego junto al título del detalle. */
+.detail-icon {
+  display: inline-block;
+  width: 1.25em;
+  height: 1.25em;
+  margin-right: 0.4em;
+  vertical-align: middle;
+  border: 1px solid var(--line);
+}
+/* Spec 06: canvas de los juegos reales dentro de .crt-screen (4:3). */
+.game-canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
 }
 .detail-tags {
   display: flex;

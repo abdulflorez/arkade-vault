@@ -1,16 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { Game } from "@/lib/data";
 import { useSession } from "@/lib/session-context";
+import { GAME_REGISTRY, type GameHandle } from "@/games/registry";
 
 const LIVES = 3;
 
 export function GamePlayer({ game }: { game: Game }) {
   const { user, saveScore } = useSession();
+  // Spec 06: si el juego está en el registro se monta el juego real; si no, el simulador.
+  const RealGame = GAME_REGISTRY[game.id];
+  const handleRef = useRef<GameHandle>(null);
+
   const [score, setScore] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [lives, setLives] = useState(LIVES);
+  const [realLevel, setRealLevel] = useState(1);
+  const [phase, setPhase] = useState("attract"); // solo juego real
+  const [simPaused, setSimPaused] = useState(false); // solo simulador
   const [over, setOver] = useState(false);
   const name = user ? user.name : "INVITADO";
   const [saved, setSaved] = useState(false);
@@ -18,7 +26,8 @@ export function GamePlayer({ game }: { game: Game }) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [shake, setShake] = useState(false);
 
-  const level = Math.floor(score / 2500) + 1;
+  const paused = RealGame ? phase === "paused" : simPaused;
+  const level = RealGame ? realLevel : Math.floor(score / 2500) + 1;
 
   const onSave = async () => {
     setSaving(true);
@@ -34,20 +43,39 @@ export function GamePlayer({ game }: { game: Game }) {
     setTimeout(() => setShake(false), 400);
   };
 
+  // Simulador: puntuación aleatoria (sin cambios para los juegos no registrados).
   useEffect(() => {
-    if (over || paused) return;
+    if (RealGame || over || simPaused) return;
     const t = setInterval(() => setScore((s) => s + Math.floor(10 + Math.random() * 90)), 220);
     return () => clearInterval(t);
-  }, [over, paused]);
+  }, [RealGame, over, simPaused]);
 
-  const endGame = () => setOver(true);
-  const restart = () => {
-    setScore(0);
-    setPaused(false);
-    setOver(false);
+  const resetSaveState = () => {
     setSaved(false);
     setSaving(false);
     setSaveError(null);
+  };
+
+  const togglePause = () => {
+    if (!RealGame) return setSimPaused((p) => !p);
+    if (phase === "paused") handleRef.current?.resume();
+    else handleRef.current?.pause();
+  };
+
+  const endGame = () => {
+    if (!RealGame) return setOver(true);
+    handleRef.current?.end(); // el motor responde con onGameOver
+  };
+
+  const restart = () => {
+    resetSaveState();
+    setOver(false);
+    if (!RealGame) {
+      setScore(0);
+      setSimPaused(false);
+      return;
+    }
+    handleRef.current?.start(); // partida nueva directa, sin modo demo
   };
 
   return (
@@ -66,7 +94,7 @@ export function GamePlayer({ game }: { game: Game }) {
           </div>
           <div className="hud-stat lives">
             <div className="l">Vidas</div>
-            <div className="v">{"♥ ".repeat(LIVES).trim() || "—"}</div>
+            <div className="v">{"♥ ".repeat(lives).trim() || "—"}</div>
           </div>
           <div className="hud-stat level">
             <div className="l">Nivel</div>
@@ -74,7 +102,11 @@ export function GamePlayer({ game }: { game: Game }) {
           </div>
         </div>
         <div className="hud-actions">
-          <button className="btn yellow" onClick={() => setPaused((p) => !p)}>
+          <button
+            className="btn yellow"
+            onClick={togglePause}
+            disabled={!!RealGame && phase === "attract"}
+          >
             {paused ? "REANUDAR" : "PAUSA"}
           </button>
           <button className="btn magenta" onClick={endGame}>
@@ -88,13 +120,30 @@ export function GamePlayer({ game }: { game: Game }) {
 
       <div className="crt">
         <div className="crt-screen">
-          <div className="game-arena">
-            <div className="grid-floor"></div>
-            <div className="enemy e1"></div>
-            <div className="enemy e2"></div>
-            <div className="enemy e3"></div>
-            <div className="player-ship"></div>
-          </div>
+          {RealGame ? (
+            <RealGame
+              ref={handleRef}
+              onStats={(s) => {
+                setScore(s.score);
+                setLives(s.lives);
+                setRealLevel(s.level);
+              }}
+              onPhaseChange={setPhase}
+              onGameOver={(finalScore) => {
+                setScore(finalScore);
+                resetSaveState();
+                setOver(true);
+              }}
+            />
+          ) : (
+            <div className="game-arena">
+              <div className="grid-floor"></div>
+              <div className="enemy e1"></div>
+              <div className="enemy e2"></div>
+              <div className="enemy e3"></div>
+              <div className="player-ship"></div>
+            </div>
+          )}
           {paused && (
             <div className="crt-content" style={{ background: "rgba(0,0,0,0.6)", zIndex: 5 }}>
               <div>
@@ -110,7 +159,7 @@ export function GamePlayer({ game }: { game: Game }) {
                     letterSpacing: "0.16em",
                   }}
                 >
-                  PULSA REANUDAR PARA CONTINUAR
+                  {RealGame ? "PULSA P O REANUDAR PARA CONTINUAR" : "PULSA REANUDAR PARA CONTINUAR"}
                 </div>
               </div>
             </div>
