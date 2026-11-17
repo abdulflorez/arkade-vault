@@ -1,8 +1,9 @@
 # 06 — ASTEROX: primer juego real de la plataforma (port de `02-asteroids`)
 
-- **Estado:** Borrador
+- **Estado:** Implementado
 - **Depende de:** SPEC 04 (supabase-infra-auth), SPEC 05 (scores-supabase — este spec se implementa después del 05)
 - **Fecha:** 2026-11-11
+- **Implementado:** 2026-11-16
 
 **Objetivo:** Portar a TypeScript el juego de `references/started_games/02-asteroids/` como **ASTEROX**, el primer juego jugable de Arcade Vault, montado en un canvas dentro del CRT de `/games/asterox/play` y comunicado con el `GamePlayer` de React por eventos.
 
@@ -139,30 +140,30 @@ Cada paso deja la app funcional (`npm run dev` sirve algo coherente después de 
 
 ## Criterios de aceptación
 
-- [ ] `src/lib/data.ts` no contiene la entrada `rocas` y contiene `asterox` con título `ASTEROX`, la descripción nueva (sin OVNIs) y `icon: "/games/asterox/icon.svg"`.
-- [ ] `/games/asterox` muestra la portada `cover-asterox` y el icono `icon.svg` junto al título. `/games/rocas` responde 404.
-- [ ] `supabase/migrations/` contiene `<timestamp>_delete_rocas_scores.sql`, aplicada en el proyecto remoto, y `select count(*) from public.scores where game_id = 'rocas'` devuelve `0`.
-- [ ] Antes de la primera marca, `/games/asterox`, su tarjeta en `/games` y `/hall-of-fame?game=asterox` muestran el estado vacío del spec 05.
-- [ ] El nombre "Asteroids" no aparece en ningún archivo de `src/` ni de `public/`.
-- [ ] Al entrar en `/games/asterox/play`, el CRT muestra el modo demo (asteroides neón moviéndose sin nave) con `PULSA ESPACIO O HAZ CLIC PARA JUGAR`, y el botón PAUSA está deshabilitado.
-- [ ] Espacio o clic en el canvas empieza la partida: aparece la nave cyan en el centro con 3 s de parpadeo y 4 asteroides grandes.
-- [ ] Destruir asteroides suma 20/50/100 según su tamaño, y el valor del HUD `Puntuación` de React coincide con la puntuación interna del motor.
-- [ ] El HUD de React muestra vidas (`♥` por vida restante) y nivel (`01`, `02`...) actualizados en tiempo real. El canvas no dibuja puntuación, nivel ni vidas.
-- [ ] Los 6 power-ups (E, T, R, H, L, N) aparecen al destruir asteroides, se recogen tocándolos y producen el mismo efecto y la misma duración que en la referencia. El canvas muestra los power-ups activos y `BOMBA [B] xN`.
-- [ ] `B` detona la Bomba Nova si hay en el inventario (máximo 2).
-- [ ] Al vaciar la pantalla de asteroides se pasa al nivel siguiente con `3 + nivel` asteroides grandes.
-- [ ] PAUSA, `P` y `Esc` pausan y reanudan, y muestran u ocultan el overlay `EN PAUSA`. Al reanudar, nada salta de posición.
-- [ ] Cambiar de pestaña o hacer clic fuera de la ventana durante la partida la pausa automáticamente.
-- [ ] Perder la última vida, o pulsar FIN, abre el modal `FIN DEL JUEGO` con la puntuación final real.
-- [ ] Con el modal abierto, pulsar Espacio, las flechas o `B` no dispara ni mueve la nave.
-- [ ] Con sesión, `GUARDAR PUNTUACIÓN` crea una fila en `public.scores` con `game_id = 'asterox'` y la puntuación final real. Después de eso, la marca aparece en `/games/asterox` y en `/hall-of-fame?game=asterox`.
-- [ ] Sin sesión, el modal muestra `INICIA SESIÓN PARA GUARDAR TU MARCA` (comportamiento del spec 05) y no guarda nada.
-- [ ] JUGAR DE NUEVO cierra el modal y empieza una partida nueva (puntuación 0, 3 vidas, nivel 1) sin pasar por el modo demo.
-- [ ] Salir con SALIR o con el Nav y volver a entrar no duplica el bucle ni los listeners: la velocidad del juego es la misma y cada disparo con Espacio produce una sola bala.
-- [ ] Fuera de `/games/asterox/play`, Espacio y las flechas hacen scroll normal en la página.
-- [ ] Los otros 7 juegos siguen mostrando el simulador en `/games/[id]/play`, sin cambios.
-- [ ] En mobile (<840px) el canvas ocupa el ancho del CRT con relación 4:3, sin scroll horizontal, y se ve nítido en pantallas de alta densidad.
-- [ ] `npm run lint` y `npm run build` pasan sin errores.
+- [x] `src/lib/data.ts` no contiene la entrada `rocas` y contiene `asterox` con título `ASTEROX`, la descripción nueva (sin OVNIs) y `icon: "/games/asterox/icon.svg"`.
+- [x] `/games/asterox` muestra la portada `cover-asterox` y el icono `icon.svg` junto al título. `/games/rocas` responde 404.
+- [x] `supabase/migrations/` contiene `<timestamp>_delete_rocas_scores.sql`, aplicada en el proyecto remoto, y `select count(*) from public.scores where game_id = 'rocas'` devuelve `0`.
+- [x] Antes de la primera marca, `/games/asterox`, su tarjeta en `/games` y `/hall-of-fame?game=asterox` muestran el estado vacío del spec 05.
+- [x] El nombre "Asteroids" no aparece en ningún archivo de `src/` ni de `public/`.
+- [x] Al entrar en `/games/asterox/play`, el CRT muestra el modo demo (asteroides neón moviéndose sin nave) con `PULSA ESPACIO O HAZ CLIC PARA JUGAR`, y el botón PAUSA está deshabilitado.
+- [x] Espacio o clic en el canvas empieza la partida: aparece la nave cyan en el centro con 3 s de parpadeo y 4 asteroides grandes.
+- [x] Destruir asteroides suma 20/50/100 según su tamaño, y el valor del HUD `Puntuación` de React coincide con la puntuación interna del motor.
+- [x] El HUD de React muestra vidas (`♥` por vida restante) y nivel (`01`, `02`...) actualizados en tiempo real. El canvas no dibuja puntuación, nivel ni vidas.
+- [x] Los 6 power-ups (E, T, R, H, L, N) aparecen al destruir asteroides, se recogen tocándolos y producen el mismo efecto y la misma duración que en la referencia. El canvas muestra los power-ups activos y `BOMBA [B] xN`.
+- [x] `B` detona la Bomba Nova si hay en el inventario (máximo 2).
+- [x] Al vaciar la pantalla de asteroides se pasa al nivel siguiente con `3 + nivel` asteroides grandes.
+- [x] PAUSA, `P` y `Esc` pausan y reanudan, y muestran u ocultan el overlay `EN PAUSA`. Al reanudar, nada salta de posición.
+- [x] Cambiar de pestaña o hacer clic fuera de la ventana durante la partida la pausa automáticamente.
+- [x] Perder la última vida, o pulsar FIN, abre el modal `FIN DEL JUEGO` con la puntuación final real.
+- [x] Con el modal abierto, pulsar Espacio, las flechas o `B` no dispara ni mueve la nave.
+- [x] Con sesión, `GUARDAR PUNTUACIÓN` crea una fila en `public.scores` con `game_id = 'asterox'` y la puntuación final real. Después de eso, la marca aparece en `/games/asterox` y en `/hall-of-fame?game=asterox`.
+- [x] Sin sesión, el modal muestra `INICIA SESIÓN PARA GUARDAR TU MARCA` (comportamiento del spec 05) y no guarda nada.
+- [x] JUGAR DE NUEVO cierra el modal y empieza una partida nueva (puntuación 0, 3 vidas, nivel 1) sin pasar por el modo demo.
+- [x] Salir con SALIR o con el Nav y volver a entrar no duplica el bucle ni los listeners: la velocidad del juego es la misma y cada disparo con Espacio produce una sola bala.
+- [x] Fuera de `/games/asterox/play`, Espacio y las flechas hacen scroll normal en la página.
+- [x] Los otros 7 juegos siguen mostrando el simulador en `/games/[id]/play`, sin cambios.
+- [x] En mobile (<840px) el canvas ocupa el ancho del CRT con relación 4:3, sin scroll horizontal, y se ve nítido en pantallas de alta densidad.
+- [x] `npm run lint` y `npm run build` pasan sin errores.
 
 ## Decisiones tomadas y descartadas
 

@@ -9,6 +9,7 @@ export interface Game {
   cat: GameCategory;
   cover: string;
   color: GameColor;
+  icon?: string; // ruta pública del icono del juego, p. ej. "/games/asterox/icon.svg"
 }
 
 export const GAMES: Game[] = [
@@ -58,13 +59,14 @@ export const GAMES: Game[] = [
     color: "green",
   },
   {
-    id: "rocas",
-    title: "ROCAS",
-    short: "Pulveriza asteroides en gravedad cero.",
-    long: "Tu nave triangular flota en vacío absoluto. Dispara y rota para dividir rocas en fragmentos cada vez más pequeños. Cuidado con los OVNIs en el horizonte.",
+    id: "asterox",
+    title: "ASTEROX",
+    short: "Parte asteroides en un espacio sin bordes.",
+    long: "Tu nave flota en un espacio toroidal: lo que sale por un borde entra por el opuesto. Dispara para partir los asteroides grandes en medianos y los medianos en pequeños. Recoge 6 power-ups (escudo, disparo triple, ralentí, hiperpropulsión, láser y Bomba Nova) y guarda hasta 2 bombas para limpiar la pantalla de un solo golpe.",
     cat: "SHOOTER",
-    cover: "cover-rocas",
+    cover: "cover-asterox",
     color: "yellow",
+    icon: "/games/asterox/icon.svg",
   },
   {
     id: "ranaria",
